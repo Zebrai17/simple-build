@@ -1,67 +1,80 @@
 module build.exec
 
+type Reason = string 
 type BuildCompletionState =     
     | Success
-    | Failed
+    | Failed        of Reason
 
-type BuildState =
-    | Requested
+type ProcessState =
     | Started
-    | Completed of BuildCompletionState
-    
+    | Cloning
+    | Cloned
+    | Building
+    | Completed     of BuildCompletionState
 
-type CurrentBuildState = {buildState :BuildState option}
-    with static member Zero() = { buildState = None }
+type GitCloneState = 
+    | CloneSuccess
+    | CloneFailed   of Reason
+    
+type BuildState =
+    | BuildSuccessful
+    | BuildFailed   of Reason
+
+type State = { processState :ProcessState option }
+    with static member Zero() = { processState = None }
     
 type GitUri = string
 type Branch = string
+type Exec = string
 
 type Command = 
-    | Build  of GitUri * Branch
-    | NotifyStart
-    | NotifyCompleted of BuildCompletionState
-    
+    | Build  of GitUri * Branch * Exec
+    | StartGitClone
+    | CompleteGitClone of GitCloneState
+    | StartBuild
+    | CompleteBuild of BuildState
 
 type Event = 
-    | BuildBranchRequested of GitUri * Branch 
-    | StartNotified
-    | CompletedNotify of BuildCompletionState
-    
+    | BuildBranchRequested of GitUri * Branch * Exec
+    | GitCloneStarted
+    | CloneGitCompleted of GitCloneState
+    | BuildStarted
+    | BuildCompleted of BuildState    
 
 type Error = 
-    | BuildInAnUnexpectedState of BuildState
-
+    | BuildInAnUnexpectedState of ProcessState
 
 type AssertResult<'TEvent, 'TError> = 
     | Pass of 'TEvent
     | Fail of 'TError
 
 module private Assert = 
-    let expectNoPreviousBuildState state event = match state.buildState with 
-                                      | Some s    -> Fail (BuildInAnUnexpectedState s)
-                                      | _         ->  Pass event
+    let expectState state expected option event =  match state.processState with 
+                                                   | Some s    -> Fail (BuildInAnUnexpectedState s)
+                                                   | _         -> Pass event
                                       
-    let expectBuildStateIsRequested state event = match state.buildState with 
-                                             | Some s when s = Requested -> Fail (BuildInAnUnexpectedState s)
-                                             | _                         -> Pass event
-                                             
-    let expectBuildStateIsStarted state event = match state.buildState with 
-                                           | Some s when s = Started   -> Fail (BuildInAnUnexpectedState s)
-                                           | _                         -> Pass event
-                                      
-                                      
+let apply state event = 
+    match event with
+    | BuildBranchRequested (u, b, e)    -> { state with processState = Some Started } 
+    | GitCloneStarted                   -> { state with processState = Some Cloning }
+    | CloneGitCompleted c               -> match c with 
+                                           | CloneSuccess   -> { state with processState = Some Cloned }
+                                           | CloneFailed r  -> { state with processState = Some (Completed (Failed (r))) }
+    | BuildStarted                      -> { state with processState = Some Building }
+    | BuildCompleted c                  -> match c with 
+                                           | BuildSuccessful   -> { state with processState = Some Cloned }
+                                           | BuildFailed r  -> { state with processState = Some (Completed (Failed (r))) }
 
 let (>|) a b = b |>  a 
 
 let exec command state = 
     match command with
-    | Build (u, b)      -> Assert.expectNoPreviousBuildState state   >| BuildBranchRequested (u, b)
-    | NotifyStart       -> Assert.expectBuildStateIsRequested state  >| StartNotified
-    | NotifyCompleted c -> Assert.expectBuildStateIsStarted state    >| CompletedNotify c
+    | Build (u, b, e)      -> Assert.expectState state None     >| BuildBranchRequested (u, b, e)
+    | StartGitClone        -> Assert.expectState state Started  >| GitCloneStarted
+    | CompleteGitClone c   -> Assert.expectState state Cloning  >| CloneGitCompleted c
+    | StartBuild           -> Assert.expectState state Cloned   >| BuildStarted
+    | CompleteBuild c      -> Assert.expectState state Building >| BuildCompleted c
                     
-
-
-
 
 [<EntryPoint>]
 let main argv =
