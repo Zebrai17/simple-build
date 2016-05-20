@@ -37,15 +37,15 @@ type AssertResult<'TEvent, 'TError> =
     | Fail of 'TError
 
 module private Assert = 
-    let noPreviousState state event = match state.buildState with 
+    let expectNoPreviousBuildState state event = match state.buildState with 
                                       | Some s    -> Fail (BuildInAnUnexpectedState s)
                                       | _         ->  Pass event
                                       
-    let previousStateRequested state event = match state.buildState with 
+    let expectBuildStateIsRequested state event = match state.buildState with 
                                              | Some s when s = Requested -> Fail (BuildInAnUnexpectedState s)
                                              | _                         -> Pass event
                                              
-    let previousStateStarted state event = match state.buildState with 
+    let expectBuildStateIsStarted state event = match state.buildState with 
                                            | Some s when s = Started   -> Fail (BuildInAnUnexpectedState s)
                                            | _                         -> Pass event
                                       
@@ -55,9 +55,9 @@ let (>|) a b = b |>  a
 
 let exec command state = 
     match command with
-    | Build (u, b)      -> Assert.noPreviousState state         >| BuildBranchRequested (u, b)
-    | NotifyStart       -> Assert.previousStateRequested state  >| StartNotified
-    | NotifyCompleted c -> Assert.previousStateStarted state    >| CompletedNotify c
+    | Build (u, b)      -> Assert.expectNoPreviousBuildState state   >| BuildBranchRequested (u, b)
+    | NotifyStart       -> Assert.expectBuildStateIsRequested state  >| StartNotified
+    | NotifyCompleted c -> Assert.expectBuildStateIsStarted state    >| CompletedNotify c
                     
 
 
