@@ -29,7 +29,8 @@ type Event =
     
 
 type Error = 
-    | BuildAlreadyRequested
+    | BuildInAnUnexpectedState of BuildState
+
 
 type AssertResult<'TEvent, 'TError> = 
     | Pass of 'TEvent
@@ -37,15 +38,15 @@ type AssertResult<'TEvent, 'TError> =
 
 module private Assert = 
     let noPreviousState state event = match state.buildState with 
-                                      | Some s    -> Fail BuildAlreadyRequested
+                                      | Some s    -> Fail (BuildInAnUnexpectedState s)
                                       | _         ->  Pass event
                                       
     let previousStateRequested state event = match state.buildState with 
-                                             | Some s when s = Requested -> Fail BuildAlreadyRequested
+                                             | Some s when s = Requested -> Fail (BuildInAnUnexpectedState s)
                                              | _                         -> Pass event
                                              
     let previousStateStarted state event = match state.buildState with 
-                                           | Some s when s = Started   -> Fail BuildAlreadyRequested
+                                           | Some s when s = Started   -> Fail (BuildInAnUnexpectedState s)
                                            | _                         -> Pass event
                                       
                                       
