@@ -26,16 +26,17 @@ type State = { processState :ProcessState option }
 type GitUri = string
 type Branch = string
 type Exec = string
+type Target = string
 
 type Command = 
-    | Build  of GitUri * Branch * Exec
+    | Build  of GitUri * Branch * Exec * Target seq
     | StartGitClone
     | CompleteGitClone of GitCloneState
     | StartBuild
     | CompleteBuild of BuildState
 
 type Event = 
-    | BuildBranchRequested of GitUri * Branch * Exec
+    | BuildBranchRequested of GitUri * Branch * Exec * Target seq
     | GitCloneStarted
     | CloneGitCompleted of GitCloneState
     | BuildStarted
@@ -55,7 +56,7 @@ module private Assert =
                                       
 let apply state event = 
     match event with
-    | BuildBranchRequested (u, b, e)    -> { state with processState = Some Started } 
+    | BuildBranchRequested (u, b, e, t) -> { state with processState = Some Started } 
     | GitCloneStarted                   -> { state with processState = Some Cloning }
     | CloneGitCompleted c               -> match c with 
                                            | CloneSuccess   -> { state with processState = Some Cloned }
@@ -69,7 +70,7 @@ let (>|) a b = b |>  a
 
 let exec command state = 
     match command with
-    | Build (u, b, e)      -> Assert.expectState state None     >| BuildBranchRequested (u, b, e)
+    | Build (u, b, e, t)   -> Assert.expectState state None     >| BuildBranchRequested (u, b, e, t)
     | StartGitClone        -> Assert.expectState state Started  >| GitCloneStarted
     | CompleteGitClone c   -> Assert.expectState state Cloning  >| CloneGitCompleted c
     | StartBuild           -> Assert.expectState state Cloned   >| BuildStarted
