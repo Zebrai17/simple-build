@@ -43,16 +43,16 @@ type Event =
     | BuildCompleted of BuildState    
 
 type Error = 
-    | BuildInAnUnexpectedState of ProcessState
+    | BuildInAnUnexpectedState of Command * ProcessState
 
 type AssertResult<'TEvent, 'TError> = 
     | Pass of 'TEvent
     | Fail of 'TError
 
 module private Assert = 
-    let expectState state expected option event =  match state.processState with 
-                                                   | Some s    -> Fail (BuildInAnUnexpectedState s)
-                                                   | _         -> Pass event
+    let expectState command state expected option event =  match state.processState with 
+                                                           | Some s    -> Fail (BuildInAnUnexpectedState (command, s))
+                                                           | _         -> Pass event
                                       
 let apply state event = 
     match event with
@@ -70,11 +70,11 @@ let (>|) a b = b |>  a
 
 let exec command state = 
     match command with
-    | Build (u, b, e, t)   -> Assert.expectState state None     >| BuildBranchRequested (u, b, e, t)
-    | StartGitClone        -> Assert.expectState state Started  >| GitCloneStarted
-    | CompleteGitClone c   -> Assert.expectState state Cloning  >| CloneGitCompleted c
-    | StartBuild           -> Assert.expectState state Cloned   >| BuildStarted
-    | CompleteBuild c      -> Assert.expectState state Building >| BuildCompleted c
+    | Build (u, b, e, t)   -> Assert.expectState command state None     >| BuildBranchRequested (u, b, e, t)
+    | StartGitClone        -> Assert.expectState command state Started  >| GitCloneStarted
+    | CompleteGitClone c   -> Assert.expectState command state Cloning  >| CloneGitCompleted c
+    | StartBuild           -> Assert.expectState command state Cloned   >| BuildStarted
+    | CompleteBuild c      -> Assert.expectState command state Building >| BuildCompleted c
                     
 
 [<EntryPoint>]
