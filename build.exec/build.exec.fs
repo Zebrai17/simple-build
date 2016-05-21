@@ -2,6 +2,8 @@ module build.exec
 
 
 
+let load = Seq.empty<BuildProcess.Event>
+let state = load |> Seq.fold BuildProcess.apply (BuildProcess.State.Zero())
 
 
 [<EntryPoint>]

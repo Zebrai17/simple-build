@@ -1,0 +1,1 @@
+docker build -t "simple-build-v0.1a" .

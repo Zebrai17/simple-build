@@ -53,6 +53,7 @@
     <Compile Include="BuildProcess.fs" />
     <Compile Include="build.exec.fs" />
     <None Include="App.config" />
+    <None Include="DockerFile" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Choose>
