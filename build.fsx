@@ -38,8 +38,8 @@ Target "Docker" (fun _ ->
     !! "/docker/**/*.*" |> CopyTo dockerBuildDir
     !! "/build/**/*.exe" |> CopyTo dockerBuildDir
     
-    let build = if isUnix then "build.sh" else "build.cmd"
-    Shell.Exec (build, "", dockerBuildDir) |> ignore
+    let build = if isUnix then "./dockerBuild/build.sh" else "build.cmd"
+    Shell.Exec (build, null ,dockerBuildDir) |> ignore
             
     ["Docker Completed"] |> Log "AppBuild-Output:"
 )
