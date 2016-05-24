@@ -1,4 +1,6 @@
 #!/bin/bash
+apt-get install -y nuget
+
 cd /usr/local
 mkdir paket
 cd ./paket
