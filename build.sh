@@ -2,7 +2,7 @@
 if test "$OS" = "Windows_NT"
 then
   # use .Net
-  mono /usr/lib/mono/paket.exe init
+  mono /usr/lib/mono/4.5/paket.exe init
   .paket/paket.bootstrapper.exe
   exit_code=$?
   if [ $exit_code -ne 0 ]; then
@@ -18,6 +18,7 @@ then
   packages/FAKE/tools/FAKE.exe $@ --fsiargs build.fsx
 else
   # use mono
+  mono /usr/lib/mono/4.5/paket.exe init
   mono .paket/paket.bootstrapper.exe
   exit_code=$?
   if [ $exit_code -ne 0 ]; then
