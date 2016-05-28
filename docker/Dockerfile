@@ -38,5 +38,6 @@ RUN apt-get update
 
 RUN apt-get install -y docker-engine
 
-ADD ./build.exec.exe /usr/lib/mono/4.5/build.exec.exe
+RUN mkdir /usr/lib/mono/4.5/simple-build
+ADD ./build.exec.exe /usr/lib/mono/4.5/simple-build/build.exec.exe
 
