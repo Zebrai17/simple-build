@@ -5,3 +5,4 @@ apt-get install
 ./paket-setup.sh
 ./fake-pre-reqs-setup.sh
 ./docker-setup.sh
+./git-code-setup.sh
