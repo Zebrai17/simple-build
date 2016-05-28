@@ -4,5 +4,6 @@ build/
 bin/
 obj/
 packages/
+dockerBuild/
 *.exe
 *.zip

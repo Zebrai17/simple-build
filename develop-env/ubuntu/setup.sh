@@ -6,3 +6,4 @@ apt-get install
 ./fake-pre-reqs-setup.sh
 ./docker-setup.sh
 ./git-code-setup.sh
+./visual-studio-code-setup.sh

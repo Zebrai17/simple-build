@@ -17,6 +17,12 @@ then
 
   packages/FAKE/tools/FAKE.exe $@ --fsiargs build.fsx
 else
+  #make sure we are running as super user
+  if [[ $UID != 0 ]]; then
+    echo "Please run this script with sudo:"
+    echo "sudo $0 $*"
+    exit 1
+  fi
   # use mono
   mono /usr/lib/mono/4.5/paket.exe init
   mono .paket/paket.bootstrapper.exe
