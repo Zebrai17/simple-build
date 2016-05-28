@@ -30,25 +30,11 @@ RUN mv ~/Automation.Managment/*/*/net45/* /usr/lib/mono/4.5
 #git
 RUN apt-get install -y git 
 
-#install docker copied from https://github.com/jpetazzo/dind/blob/master/Dockerfile
-# Let's start with some basic stuff.
-RUN apt-get update -qq && apt-get install -qqy \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    lxc \
-    iptables
-    
-# Install Docker from Docker Inc. repositories.
-RUN cd / && curl -sSL https://get.docker.com/ | sh
+RUN apt-get install -y apt-transport-https ca-certificates
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+RUN echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' > /etc/apt/sources.list.d/docker.list
 
-# Install the magic wrapper.
-ADD ./wrapdocker /usr/local/bin/wrapdocker
-ADD ./build-script.sh /usr/local/bin/build-script.sh
+RUN apt-get update
 
-RUN chmod +x /usr/local/bin/wrapdocker
-RUN chmod +x /usr/local/bin/build-script.sh
+RUN apt-get install -y docker-engine
 
-# Define additional metadata for our image.
-VOLUME /var/lib/docker
-CMD ["wrapdocker"]
