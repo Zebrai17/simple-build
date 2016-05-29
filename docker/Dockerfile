@@ -41,4 +41,4 @@ RUN apt-get install -y docker-engine
 RUN mkdir /usr/lib/mono/4.5/simple-build
 ADD ./build.exec.exe /usr/lib/mono/4.5/simple-build/build.exec.exe
 
-CMD ["mono /usr/lib/mono/4.5/simple-build/build.exec.exe"]
+#CMD ["mono", /usr/lib/mono/4.5/simple-build/build.exec.exe"]

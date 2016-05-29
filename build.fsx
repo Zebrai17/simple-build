@@ -23,9 +23,6 @@ let version = "0.1"  // or retrieve from CI server
 // Targets
 Target "Clean" (fun _ ->      
     CleanDirs [buildDir; deployDir; dockerBuildDir]
-    
-    let clean = if isUnix then "docker/clean.sh" else "docker/clean.cmd"
-    Shell.Exec (clean) |> ignore
 )
 
 Target "Build" (fun _ ->
@@ -38,7 +35,8 @@ Target "Docker" (fun _ ->
     !! "/docker/**/*.*" |> CopyTo dockerBuildDir
     !! "/build/**/*.exe" |> CopyTo dockerBuildDir
     
-    let build = if isUnix then "./dockerBuild/build.sh" else "build.cmd"
+    let build = if isUnix then dockerBuildDir + "build.sh" else "build.cmd"
+        
     Shell.Exec (build, null ,dockerBuildDir) |> ignore
             
     ["Docker Completed"] |> Log "AppBuild-Output:"
