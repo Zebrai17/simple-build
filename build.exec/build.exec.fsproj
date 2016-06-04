@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildProcess.fs" />
+    <Compile Include="CommandFactory.fs" />
     <Compile Include="build.exec.fs" />
     <None Include="App.config" />
     <None Include="DockerFile" />
