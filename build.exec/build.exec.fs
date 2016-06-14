@@ -16,7 +16,7 @@ let main argv =
     let commandResult = CommandFactory.create argv
     
     match commandResult with
-    | CommandFactory.Error e when e = CommandFactory.CommandNotProvided -> printUsageInstructions
-    | _ -> printf "%s" "Error"
+    | CommandFactory.Success c -> printf "Command: %s" (JsonConvert.SerializeObject c)
+    | CommandFactory.Error e ->  printf "Error: %s" (JsonConvert.SerializeObject e)
     
     0 // return an integer exit code
