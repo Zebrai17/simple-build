@@ -26,18 +26,18 @@ type State = { processState :ProcessState option }
     
 type GitUri = string
 type Branch = string
-type Exec = string
+type Script = string
 type Target = string
 
 type Command = 
-    | Build  of GitUri * Branch * Exec * Target seq
+    | Build  of GitUri * Branch * Branch * Target seq
     | StartGitClone
     | CompleteGitClone of GitCloneState
     | StartBuild
     | CompleteBuild of BuildState
 
 type Event = 
-    | BuildBranchRequested of GitUri * Branch * Exec * Target seq
+    | BuildBranchRequested of GitUri * Branch * Branch * Target seq
     | GitCloneStarted
     | CloneGitCompleted of GitCloneState
     | BuildStarted
